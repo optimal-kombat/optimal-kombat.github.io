@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Optimal Kombat - MMA Analytics</title><link href="/" rel="alternate"></link><link href="/feeds/mma-analytics.atom.xml" rel="self"></link><id>/</id><updated>2025-06-12T00:00:00+01:00</updated><entry><title>Starting the Fight – Scraping UFC Data and Launching Optimal Kombat</title><link href="/starting-the-fight.html" rel="alternate"></link><published>2025-06-12T00:00:00+01:00</published><updated>2025-06-12T00:00:00+01:00</updated><author><name>Oscar Kelly</name></author><id>tag:None,2025-06-12:/starting-the-fight.html</id><summary type="html">&lt;p&gt;Kicking off Optimal Kombat with a breakdown of my scraping workflow, vision for the site, and an invite for feedback.&lt;/p&gt;</summary><content type="html">&lt;p&gt;Welcome to Optimal Kombat – where we use data to decode the fight game.&lt;/p&gt;
+&lt;p&gt;This first post is a quick overview of why I started this project, what kind of analysis I'm building, and how you can help shape it.&lt;/p&gt;
+&lt;h2&gt;What This Blog Is About&lt;/h2&gt;
+&lt;p&gt;I'm an analyst with a passion for MMA, using Python to break down fight data, uncover trends, and model fight outcomes. This blog will track my journey as I build analytics tools, test predictive models, and explore fighter performance from a data-driven lens.&lt;/p&gt;
+&lt;h2&gt;Scraping UFC Stats&lt;/h2&gt;
+&lt;p&gt;The first step in this process is &lt;strong&gt;scraping structured fight data&lt;/strong&gt; from &lt;a href="http://ufcstats.com"&gt;UFCStats.com&lt;/a&gt;. I’ve built a Python-based scraper that pulls fighter stats round-by-round and stores them as time series. I’ll go into the technical details of the scraper, schema, and challenges in the next post.&lt;/p&gt;
+&lt;h2&gt;What’s Coming&lt;/h2&gt;
+&lt;p&gt;Here’s a quick preview of future content:
+- Fighter style clustering
+- Pace &amp;amp; fatigue analysis
+- Pre-fight modeling + betting angles
+- Time series evolution of fighters’ stats&lt;/p&gt;
+&lt;h2&gt;Give Me Feedback&lt;/h2&gt;
+&lt;p&gt;I’d love to hear from readers! What kind of insights are you curious about?
+- Do you want visual breakdowns of matchups?
+- Deeper dives into performance analytics?
+- Tutorials or code walkthroughs?&lt;/p&gt;
+&lt;p&gt;Comment (coming soon), DM me, or message me on GitHub.&lt;/p&gt;
+&lt;p&gt;Let’s find patterns in the chaos—together.&lt;/p&gt;</content><category term="MMA Analytics"></category><category term="scraping"></category><category term="UFC"></category><category term="MMA"></category><category term="Optimal Kombat"></category><category term="introduction"></category></entry></feed>
