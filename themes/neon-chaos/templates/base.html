@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{ SITENAME }}{% if TITLE %} | {{ TITLE }}{% endif %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ SITEURL }}/theme/css/custom.css">
+</head>
+<body>
+    <header>
+        <h1><a href="{{ SITEURL }}/">{{ SITENAME }}</a></h1>
+        <p>{{ TAGLINE }}</p>
+    </header>
+
+    <main>
+        {% block content %}
+        {{ content }}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; {{ CURRENT_YEAR }} {{ AUTHOR }}</p>
+    </footer>
+</body>
+</html>
