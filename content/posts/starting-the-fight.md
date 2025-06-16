@@ -17,7 +17,7 @@ This first post is a quick overview of why I started this project, what kind of 
 ### Who am I?
 My name is Oscar, a trading analyst who uses Python in my job and has a passion for sports. I played as a prop in rugby throughout school and uni, but decided that I was done standing around in the rain on a pitch in the middle of winter and wanted to move to a different sport. One I could do year-round and inside, with a lower incidence of injury perhaps... Which is why I picked Brazilian Jiu Jitsu (BJJ)!
 
-While there is still the small but non-zero chance of some pretty devastating injuries, I was immediately hooked onto BJJ when I was forced to tap 8 times in a 5-minute sparring round by someone half my size - I love learning new things, and there are plenty of techniques and facets to the sport, both in the gi and in no gi.
+While there is still the small but non-zero chance of some pretty devastating injuries, I was immediately hooked onto BJJ after being tapped 8 times in a single 5-minute round by someone half my size - I love learning new things, and there are plenty of techniques and facets to the sport, both in the gi and in no gi.
 
 It also opened me up to the world of martial arts, and exposed me to MMA. Whilst I had heard of and seen MMA before, I had rather naively seen it as, "boxing but more violent and with grappling" up to this point - now, I had a new appreciation for the grappling aspect of the sport: the contrast between the overt violent melee, and the subtle techniques, tactics and strategy creates a fantastic spectator sport.
 
@@ -28,10 +28,10 @@ This made me wonder: why *aren't* there stats in other sports?
 
 MMA seems like a good candidate for investigating this: the UFC is a huge promotion, and dominates the MMA sport (some people use the terms "UFC" and "MMA" interchangably when talking about watching the sport!). They collect a vast array of different data during the course of a fight: number of strikes landed vs thrown, takedown attempts, significant strikes landed to the opponent's body, significant strikes landed from the clinch position,... Not to mention, this data is collected at the fight level and at the round level: so, a 5-round fight generates a huge amount of data, and with several fights every event, there are thousands of data points generated every month!
 
-Maybe this is my ignorance around the sport of MMA, but I think that this data gets generated, collected,... and largely ignored. What are the implications of this data? Could we look at an incoming fighter and judge how they will perform against a particular opponent? Can we use some of this data to predict if a fight will go the distance or finish early, and how might it finish? Is there a way to evaluate fighters before a fight, to see if one is severely over- or undervalued in terms of betting odds?
+Maybe it's just my ignorance, but I think that this data gets generated, collected,... and largely ignored. What are the implications of this data? Could we look at an incoming fighter and judge how they will perform against a particular opponent? Can we use some of this data to predict if a fight will go the distance or finish early, and how might it finish? Is there a way to evaluate fighters before a fight, to see if one is severely over- or undervalued in terms of betting odds?
 
 ### The Purpose of This Blog
-Miyamoto Musashi, a Japanese swordsmen, strategist and writer, wrote: "When you know the way broadly, you see it in all things". Starting BJJ has made me look at other aspects of my life differently, particularly when looking at learning new things.
+Miyamoto Musashi, a Japanese swordsman, strategist and writer, wrote: "When you know the way broadly, you see it in all things". Starting BJJ has made me look at other aspects of my life differently, particularly when looking at learning new things.
 
 I have learned how to code only in the last few years, and already I feel comfortable using it to automate a lot of my work on a day-to-day basis. However, I feel like I have rushed past some things, and neglected to practice other things that I learned, didn't require at the time, and so have forgotten about.
 
@@ -40,7 +40,7 @@ One of the aims of this blog is to help give me a reason to practice these skill
 My overall goal is to use Python to break down fight data, uncover trends, and model fight outcomes and aspects of a fight. This blog will track my journey as I build analytics tools, test predictive models, and explore fighter performance from a data-driven lens.
 
 ### What’s Coming
-I wouldn't say that I have a strict plan for this project at this stage, but some ideas I have for future content I'd like to cover are:
+This project is exploratory in nature, so currently there is no defined direction, but here are a few ideas I'm excited to dive into:
 
 - Time series evolution of fighters’ stats - who learns from their mistakes, and who gets left behind
 - Fighter style clustering - how does Bruce Buffer know how to describe fighters in his intros before a fight starts?

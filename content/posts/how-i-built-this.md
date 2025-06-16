@@ -5,6 +5,7 @@ Category: Meta
 Slug: how-i-built-this
 Authors: Oscar Kelly
 Summary: A technical overview of how I used Python and Pelican to build my MMA analytics site.
+Status: published
 
 ---
 Before we get into any analysis, I needed somewhere to house all of the amazing insights that will change the face of the MMA world - and by extension, the actual world - forever. But if all of the analysis turns out to be rubbish, at least I'll be able to say that all my failings are housed on a website I built from scratch!
