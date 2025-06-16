@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article class="post">
+  <header>
+    <h1>{{ article.title }}</h1>
+    <p><time datetime="{{ article.date.isoformat() }}">{{ article.date.strftime('%Y-%m-%d') }}</time></p>
+  </header>
+
+  {{ article.content }}
+
+  <section id="comments">
+    <script src="https://utteranc.es/client.js"
+            repo="optimal-kombat/optimal-kombat.github.io"
+            issue-term="pathname"
+            theme="github-dark"
+            crossorigin="anonymous"
+            async>
+    </script>
+  </section>
+</article>
+{% endblock %}
