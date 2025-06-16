@@ -4,7 +4,7 @@ Category: MMA Analytics
 Tags: scraping, UFC, MMA
 Slug: starting-the-fight
 Author: Oscar Kelly
-Summary: Intro to Optimal Kombat and scraping workflow.
+Summary: Intro to Optimal Kombat.
 Status: published
 
 ---
