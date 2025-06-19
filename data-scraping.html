@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Optimal Kombat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://optimal-kombat.github.io/theme/css/custom.css">
+</head>
+<body>
+    <header>
+        <h1>
+          <a href="https://optimal-kombat.github.io/">
+            <img src="images/optimal-kombat-logo.png" alt="Optimal Kombat" style="height: 60px; vertical-align: middle;">
+          </a>
+        </h1>
+        <p></p>
+    </header>
+
+    <main>
+<article class="post">
+  <header>
+    <h1>Scraps and Scrapes - Web Scraping UFC Fight Data</h1>
+    <p><time datetime="2025-06-18T00:00:00+01:00">2025-06-18</time></p>
+  </header>
+
+  <h3>Why Data Quality is Important</h3>
+<p>There's a well-known saying in the data industry that describes how your model's predictive capabilities will never be significantly better than the quality of the training data.</p>
+<p><em>Sh*t in = sh*t out</em></p>
+<p>So, before we can do any thought-provoking analysis, we need some good data.</p>
+<h3>Straight to the Source</h3>
+<p>Luckily, the UFC are kind enough to provide data on all of their events down to the round-level, via the <a href="http://www.ufcstats.com">UFCstats</a> website. Under the <em>Events and Fights</em> section, you can select individual fights from any event and see striking and grappling stats for each fighter in each of the rounds fought - it also includes other data such as the final scorecards (if it was a decision), the referee, and the weightclass at which the fighters fought.</p>
+<p>This section of UFCstats doesn't have everything unfortunately - some missing data includes:</p>
+<ul>
+<li>Round-by-round scorecards (though in hindsight, I don't know if the UFC actually publish these anyway...)</li>
+<li>If a fighter missed weight</li>
+<li>A fighter's stance</li>
+<li>How Bruce Buffer introduces them (where he calls them "a striker", or a "brawler" - I've always wondered how they decide who's what kind of fighter... We'll be exploring this in a later article!)</li>
+</ul>
+<p>Despite some of the missing data, I believe I can collect this at a later date, and include it as fighter metadata in analysis going forward. But for the start of this project, I wanted to collect the stats from each fight. This would enable me to do a couple of things: first, I can see how fighters have performed over time, from the start of their career to the present day. Secondly, I can calculate some other interesting stats that often come up when talking about UFC fighters - e.g. SLpM (Strikes Landed per Minute) can be calculated from a fighter's total strikes landed and the length of each fight.</p>
+<h3>Accessing the Data</h3>
+<p>The problem is, accessing this potential goldmine of data is very difficult - there's no download button, and no API that I could find that was freely available. But the website did have a consistent structure for every fight in every event for the last 15 or so years.</p>
+<p>Enter <code>BeautifulSoup</code>.</p>
+<p>For the unacquainted, <code>BeautifulSoup</code> is a <em>web scraping</em> python package, letting you pull data from websites, provided they have a consistent HTML structure.</p>
+<p>Let's go through the steps I used to create my starting dataset.</p>
+<h3>Step 1: Scrape All Event URLs</h3>
+<p>We have already identified the data source, but now we need to access each of the events in turn, so we can scrape the data from their respective fights. I used a simple function that scraped the <a href="http://ufcstats.com/statistics/events/completed?page=all">events page</a>, searched the HTML code for each event's URL, and pulled it into a list. This can now be iterated through to access each event in turn.</p>
+<h3>Step 2: Extract All Fights From Each Event</h3>
+<p>I iterated through our event URL list, pulling all of the fight URLs from the HTML code of each event webpage. These fight URLs were then stored in a new list, creating a list of all UFC fights that have taken place since around 2009 (I didn't want to collect data that was too old, but decided that UFC100 was a good starting point, since it would include active UFC veterans and had the same HTML structure as more recent events).</p>
+<h3>Step 3: Scrape Fight-Level Stats</h3>
+<p>Using another function, I iterated through the fight URLs to access the data associated with each fight. I pulled as much as I could from the page, starting with the fight-level data, then moving onto each of the individual rounds. The scraper had to be dynamic, as some fights ended early in round 1, while some went the full distance (either 3 rounds for normal fights, or 5 rounds for fights with a belt on the line/headline fights). So, I assumed I was collecting 5 rounds of data, and if the fight ended in round 1, the data in rounds 2-5 are filled with <code>NaN</code> values, to simplify things.</p>
+<p>In addition to fight statistics, I collected data related to the fight itself: who the referee was, the fight length in seconds, the judges' names and scorecards if the fight ended in a decision, and the method of victory, amongst others. These statistics will allow me to add extra information to my models, and look into predicting things like how fights might end, rather than just if they will finish inside the distance.</p>
+<p>I now faced a problem: how should I be storing this data? I couldn't set up a dictionary with all of the UFC fighters names - ~~that would take too long and I'm too lazy~~ it would be inefficient. If a new fighter came along, I would have to add their name to the dictionary before I could pull data for them.</p>
+<p>Thankfully, Python already had a solution: the <code>defaultdict</code> in the <code>collections</code> module won't throw a KeyError if you pass a new key into it like a normal dictionary would. Instead, it seamlessly creates a new key for you!</p>
+<h3>Step 4: Time Crisis</h3>
+<p>I pulled all of the fight data I could from every fight since UFC100 - thousands of fights, with hundreds of data points in each. My script ran for over an hour (if anyone has any tips to make this process more efficient, feel free to let me know in the comments!), and I immediately saved the JSON output locally to ensure I wouldn't lose it. I then tried to plot some data for a fighter over a period of time, to see how their stats had changed over time.</p>
+<p>One rather crucial piece of data was missing from the fight pages... The date the fight took place.</p>
+<p>So, back at the drawing board, I created a mapping dictionary - this mapped the fight URLs to the event date contained in the event page. Armed with this, I could modify the data scraping function to add this date in as metadata alongside the fight data, ensuring that I could create time series from the <code>defaultdict</code> at the end.</p>
+<p>The final data object looked something like this:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+    <span class="o">...</span><span class="p">,</span>
+    <span class="s1">&#39;Max Holloway&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;Ilia Topuria&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;Fighter_1&#39;</span><span class="p">:</span> <span class="s1">&#39;Ilia Topuria&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Fighter_2&#39;</span><span class="p">:</span> <span class="s1">&#39;Max Holloway&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Weight_Class&#39;</span><span class="p">:</span> <span class="s1">&#39;UFC Featherweight Title Bout&#39;</span><span class="p">,</span>
+        <span class="o">...</span><span class="p">,</span>
+        <span class="s1">&#39;Date&#39;</span><span class="p">:</span> <span class="s1">&#39;2024-10-26&#39;</span><span class="p">},</span>
+       <span class="s1">&#39;stats&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;FIGHT_KD_1&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s1">&#39;FIGHT_KD_2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="o">...</span><span class="p">,</span>
+        <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;http://ufcstats.com/fight-details/ebf7cea27b83c432&#39;</span><span class="p">}],</span>
+        <span class="s1">&#39;Justin Gaethje&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">],</span>
+        <span class="o">...</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The nested dictionary above stores each fighter's fights as keys, mapping to lists of dictionaries with their fight metadata and statistics. This structure lets us:</p>
+<ul>
+<li>Quickly access a fighter's historical stats</li>
+<li>Perform time-based filtering using the "Date" field</li>
+<li>Track changes in performance against different opponents</li>
+</ul>
+<h3>Final Thoughts</h3>
+<p>That's it! Now we have a rather complex but rich dataset that can be used in all sorts of analysis projects. We have a time component that will allow for time series analysis, plenty of numerical and categorical data to allow basic analysis such as comparing different stats between fighters, or more complex analysis such as predicting who is likely to win a bout in a future event.</p>
+<p>They say that data acquisition and cleaning is 80% of a data scientist's job, and only around 20% is spent actually doing the fun stuff like modelling, predicting, and drawing conclusions from the data. We will now be moving onto that 20% in the next article, where we'll use this dataset to create visual timelines of fighter stats, starting with some familiar names.</p>
+<p>As always, feel free to let me know if you enjoyed this article, if there's anything you think I've missed, and what you would like to see next!</p>
+
+  <section id="comments">
+    <script src="https://utteranc.es/client.js"
+            repo="optimal-kombat/optimal-kombat.github.io"
+            issue-term="title"
+            theme="github-dark"
+            crossorigin="anonymous"
+            async>
+    </script>
+  </section>
+</article>
+    </main>
+
+    <footer>
+        <p>&copy;  Oscar Kelly</p>
+    </footer>
+</body>
+</html>
