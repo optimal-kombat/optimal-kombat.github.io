@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Optimal Kombat</title><link href="https://optimal-kombat.github.io/" rel="alternate"></link><link href="https://optimal-kombat.github.io/feeds/all.atom.xml" rel="self"></link><id>https://optimal-kombat.github.io/</id><updated>2025-06-19T00:00:00+01:00</updated><entry><title>Scraps and Scrapes - Web Scraping UFC Fight Data</title><link href="https://optimal-kombat.github.io/data-scraping.html" rel="alternate"></link><published>2025-06-19T00:00:00+01:00</published><updated>2025-06-19T00:00:00+01:00</updated><author><name>Oscar Kelly</name></author><id>tag:optimal-kombat.github.io,2025-06-19:/data-scraping.html</id><summary type="html">&lt;p&gt;A technical overview of how I used Python and BeautifulSoup to build a UFC dataset.&lt;/p&gt;</summary><content type="html">&lt;h3&gt;Why Data Quality is Important&lt;/h3&gt;
+&lt;p&gt;There's a well-known saying in the data industry that describes how your model's predictive capabilities will never be significantly better than the quality of the training data.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Sh*t in = sh*t out&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;So, before we can do any thought-provoking analysis, we need some good data.&lt;/p&gt;
+&lt;h3&gt;Straight to the Source&lt;/h3&gt;
+&lt;p&gt;Luckily, the UFC are kind enough to provide data on all of their events down to the round-level, via the &lt;a href="http://www.ufcstats.com"&gt;UFCstats&lt;/a&gt; website. Under the &lt;em&gt;Events and Fights&lt;/em&gt; section, you can select individual fights from any event and see striking and grappling stats for each fighter in each of the rounds fought - it also includes other data such as the final scorecards (if it was a decision), the referee, and the weightclass at which the fighters fought.&lt;/p&gt;
+&lt;p&gt;This section of UFCstats doesn't have everything unfortunately - some missing data includes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Round-by-round scorecards (though in hindsight, I don't know if the UFC actually publish these anyway...)&lt;/li&gt;
+&lt;li&gt;If a fighter missed weight&lt;/li&gt;
+&lt;li&gt;A fighter's stance&lt;/li&gt;
+&lt;li&gt;How Bruce Buffer introduces them (where he calls them "a striker", or a "brawler" - I've always wondered how they decide who's what kind of fighter... We'll be exploring this in a later article!)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Despite some of the missing data, I believe I can collect this at a later date, and include it as fighter metadata in analysis going forward. But for the start of this project, I wanted to collect the stats from each fight. This would enable me to do a couple of things: first, I can see how fighters have performed over time, from the start of their career to the present day. Secondly, I can calculate some other interesting stats that often come up when talking about UFC fighters - e.g. SLpM (Strikes Landed per Minute) can be calculated from a fighter's total strikes landed and the length of each fight.&lt;/p&gt;
+&lt;h3&gt;Accessing the Data&lt;/h3&gt;
+&lt;p&gt;The problem is, accessing this potential goldmine of data is very difficult - there's no download button, and no API that I could find that was freely available. But the website did have a consistent structure for every fight in every event for the last 15 or so years.&lt;/p&gt;
+&lt;p&gt;Enter &lt;code&gt;BeautifulSoup&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;For the unacquainted, &lt;code&gt;BeautifulSoup&lt;/code&gt; is a &lt;em&gt;web scraping&lt;/em&gt; python package, letting you pull data from websites, provided they have a consistent HTML structure.&lt;/p&gt;
+&lt;p&gt;Let's go through the steps I used to create my starting dataset.&lt;/p&gt;
+&lt;h3&gt;Step 1: Scrape All Event URLs&lt;/h3&gt;
+&lt;p&gt;We have already identified the data source, but now we need to access each of the events in turn, so we can scrape the data from their respective fights. I used a simple function that scraped the &lt;a href="http://ufcstats.com/statistics/events/completed?page=all"&gt;events page&lt;/a&gt;, searched the HTML code for each event's URL, and pulled it into a list. This can now be iterated through to access each event in turn.&lt;/p&gt;
+&lt;h3&gt;Step 2: Extract All Fights From Each Event&lt;/h3&gt;
+&lt;p&gt;I iterated through our event URL list, pulling all of the fight URLs from the HTML code of each event webpage. These fight URLs were then stored in a new list, creating a list of all UFC fights that have taken place since around 2009 (I didn't want to collect data that was too old, but decided that UFC100 was a good starting point, since it would include active UFC veterans and had the same HTML structure as more recent events).&lt;/p&gt;
+&lt;h3&gt;Step 3: Scrape Fight-Level Stats&lt;/h3&gt;
+&lt;p&gt;Using another function, I iterated through the fight URLs to access the data associated with each fight. I pulled as much as I could from the page, starting with the fight-level data, then moving onto each of the individual rounds. The scraper had to be dynamic, as some fights ended early in round 1, while some went the full distance (either 3 rounds for normal fights, or 5 rounds for fights with a belt on the line/headline fights). So, I assumed I was collecting 5 rounds of data, and if the fight ended in round 1, the data in rounds 2-5 are filled with &lt;code&gt;NaN&lt;/code&gt; values, to simplify things.&lt;/p&gt;
+&lt;p&gt;In addition to fight statistics, I collected data related to the fight itself: who the referee was, the fight length in seconds, the judges' names and scorecards if the fight ended in a decision, and the method of victory, amongst others. These statistics will allow me to add extra information to my models, and look into predicting things like how fights might end, rather than just if they will finish inside the distance.&lt;/p&gt;
+&lt;p&gt;I now faced a problem: how should I be storing this data? I couldn't set up a dictionary with all of the UFC fighters names - ~~that would take too long and I'm too lazy~~ it would be inefficient. If a new fighter came along, I would have to add their name to the dictionary before I could pull data for them.&lt;/p&gt;
+&lt;p&gt;Thankfully, Python already had a solution: the &lt;code&gt;defaultdict&lt;/code&gt; in the &lt;code&gt;collections&lt;/code&gt; module won't throw a KeyError if you pass a new key into it like a normal dictionary would. Instead, it seamlessly creates a new key for you!&lt;/p&gt;
+&lt;h3&gt;Step 4: Time Crisis&lt;/h3&gt;
+&lt;p&gt;I pulled all of the fight data I could from every fight since UFC100 - thousands of fights, with hundreds of data points in each. My script ran for over an hour (if anyone has any tips to make this process more efficient, feel free to let me know in the comments!), and I immediately saved the JSON output locally to ensure I wouldn't lose it. I then tried to plot some data for a fighter over a period of time, to see how their stats had changed over time.&lt;/p&gt;
+&lt;p&gt;One rather crucial piece of data was missing from the fight pages... The date the fight took place.&lt;/p&gt;
+&lt;p&gt;So, back at the drawing board, I created a mapping dictionary - this mapped the fight URLs to the event date contained in the event page. Armed with this, I could modify the data scraping function to add this date in as metadata alongside the fight data, ensuring that I could create time series from the &lt;code&gt;defaultdict&lt;/code&gt; at the end.&lt;/p&gt;
+&lt;p&gt;The final data object looked something like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="o"&gt;...&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s1"&gt;&amp;#39;Max Holloway&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="s1"&gt;&amp;#39;Ilia Topuria&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;metadata&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Fighter_1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Ilia Topuria&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s1"&gt;&amp;#39;Fighter_2&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Max Holloway&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s1"&gt;&amp;#39;Weight_Class&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;UFC Featherweight Title Bout&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="o"&gt;...&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s1"&gt;&amp;#39;Date&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;2024-10-26&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+       &lt;span class="s1"&gt;&amp;#39;stats&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;FIGHT_KD_1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s1"&gt;&amp;#39;FIGHT_KD_2&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="o"&gt;...&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s1"&gt;&amp;#39;url&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;http://ufcstats.com/fight-details/ebf7cea27b83c432&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}],&lt;/span&gt;
+        &lt;span class="s1"&gt;&amp;#39;Justin Gaethje&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;...&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+        &lt;span class="o"&gt;...&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="p"&gt;},&lt;/span&gt;
+    &lt;span class="o"&gt;...&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The nested dictionary above stores each fighter's fights as keys, mapping to lists of dictionaries with their fight metadata and statistics. This structure lets us:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Quickly access a fighter's historical stats&lt;/li&gt;
+&lt;li&gt;Perform time-based filtering using the "Date" field&lt;/li&gt;
+&lt;li&gt;Track changes in performance against different opponents&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Final Thoughts&lt;/h3&gt;
+&lt;p&gt;That's it! Now we have a rather complex but rich dataset that can be used in all sorts of analysis projects. We have a time component that will allow for time series analysis, plenty of numerical and categorical data to allow basic analysis such as comparing different stats between fighters, or more complex analysis such as predicting who is likely to win a bout in a future event.&lt;/p&gt;
+&lt;p&gt;They say that data acquisition and cleaning is 80% of a data scientist's job, and only around 20% is spent actually doing the fun stuff like modelling, predicting, and drawing conclusions from the data. We will now be moving onto that 20% in the next article, where we'll use this dataset to create visual timelines of fighter stats, starting with some familiar names.&lt;/p&gt;
+&lt;p&gt;As always, feel free to let me know if you enjoyed this article, if there's anything you think I've missed, and what you would like to see next!&lt;/p&gt;</content><category term="MMA Analytics"></category><category term="scraping"></category><category term="python"></category><category term="UFC"></category><category term="data"></category><category term="BeautifulSoup"></category></entry><entry><title>How I Built This Website with Pelican</title><link href="https://optimal-kombat.github.io/how-i-built-this.html" rel="alternate"></link><published>2025-06-16T00:00:00+01:00</published><updated>2025-06-16T00:00:00+01:00</updated><author><name>Oscar Kelly</name></author><id>tag:optimal-kombat.github.io,2025-06-16:/how-i-built-this.html</id><summary type="html">&lt;p&gt;A technical overview of how I used Python and Pelican to build my MMA analytics site.&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;p&gt;Before we get into any analysis, I needed somewhere to house all of the amazing insights that will change the face of the MMA world - and by extension, the actual world - forever. But if all of the analysis turns out to be rubbish, at least I'll be able to say that all my failings are housed on a website I built from scratch!&lt;/p&gt;
+&lt;p&gt;This blog is powered by &lt;a href="https://getpelican.com"&gt;Pelican&lt;/a&gt;, a static site generator written in Python. The website is hosted on GitHub Pages. Here’s how I built it from scratch, and how you can too.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Step 1: Set Up Python &amp;amp; Pelican&lt;/h3&gt;
+&lt;p&gt;I used &lt;strong&gt;Anaconda Prompt&lt;/strong&gt; to create the site:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;pip&lt;span class="w"&gt; &lt;/span&gt;install&lt;span class="w"&gt; &lt;/span&gt;pelican&lt;span class="w"&gt; &lt;/span&gt;markdown
+pelican-quickstart
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This will generate a series of questions for you to answer about the site name, URL, author, and deployment options. I chose GitHub Pages to host the website, but there are options for S3, Dropbox, and more. This will guide the package in how to build your website and the folder structure that you will need.&lt;/p&gt;
+&lt;h3&gt;Step 2: Create a Post&lt;/h3&gt;
+&lt;p&gt;In the folders generated by pelican, there will be a &lt;code&gt;content/posts/&lt;/code&gt; folder - this is where your articles should be stored so that they are properly generated on the website at the end. Each article should be a markdown file with a header, containing key metadata that will be shown in the article:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;Title: My first post
+Date: 2025-06-16
+Tags: mma, analytics
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You can edit these markdown files in whatever text editor you prefer to use - I used VS Code with its Markdown preview functionality, so I can see what the post would look like in real time!&lt;/p&gt;
+&lt;h3&gt;Step 3: Choosing a Theme&lt;/h3&gt;
+&lt;p&gt;This is where you can add some flair to your currently drab website - you can create a file called &lt;code&gt;custom.css&lt;/code&gt; that houses your styling instructions for the website. To apply the CSS file to your post, add the stylesheet reference in the &lt;code&gt;pelicanconf.py&lt;/code&gt; file, and modify the &lt;code&gt;base.html&lt;/code&gt; file inside the &lt;code&gt;theme&lt;/code&gt; directory. This can feel a bit convoluted and isn't essential, but it definitely adds something to your website that makes it feel unique!&lt;/p&gt;
+&lt;h3&gt;Step 4: Preview the Website Locally&lt;/h3&gt;
+&lt;p&gt;You should now be in a position to have a look at your website, to see what your users will see when they get there. You can run the following code to host a preview of your website locally on your machine:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;pelican&lt;span class="w"&gt; &lt;/span&gt;content
+&lt;span class="nb"&gt;cd&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;output
+python&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;http.server&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;8000&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This will host the website on a port on your machine, which you can access by typing &lt;code&gt;http://localhost:8000&lt;/code&gt; into your browser.&lt;/p&gt;
+&lt;h3&gt;Step 5: Push the Website to GitHub&lt;/h3&gt;
+&lt;p&gt;If you want to share your website with the wider world, you'll need to host it online. One free way to do this is by creating a GitHub repository, naming it the same as your desired website URL, and running the following from the project root in the Anaconda prompt:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;git&lt;span class="w"&gt; &lt;/span&gt;init
+git&lt;span class="w"&gt; &lt;/span&gt;add&lt;span class="w"&gt; &lt;/span&gt;.
+git&lt;span class="w"&gt; &lt;/span&gt;commit&lt;span class="w"&gt; &lt;/span&gt;-m&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Initial commit&amp;quot;&lt;/span&gt;
+git&lt;span class="w"&gt; &lt;/span&gt;remote&lt;span class="w"&gt; &lt;/span&gt;add&lt;span class="w"&gt; &lt;/span&gt;origin&lt;span class="w"&gt; &lt;/span&gt;git@github.com:&lt;span class="o"&gt;[&lt;/span&gt;REPO_PATH&lt;span class="o"&gt;]&lt;/span&gt;
+git&lt;span class="w"&gt; &lt;/span&gt;push&lt;span class="w"&gt; &lt;/span&gt;-u&lt;span class="w"&gt; &lt;/span&gt;origin&lt;span class="w"&gt; &lt;/span&gt;main
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;After a minute or so, you should be able to access your website via the URL you specified.&lt;/p&gt;
+&lt;h3&gt;Final Thoughts&lt;/h3&gt;
+&lt;p&gt;While the blog is about exploring the sport of MMA through a data lens, I thought it was important to briefly cover the details of how this website came to be - building this platform has given me a way to shape how I present ideas, try new functionality, and creatively craft a story around the technical side of any analysis. Hopefully, it also makes reading it all a bit more enjoyable too!&lt;/p&gt;</content><category term="Meta"></category><category term="pelican"></category><category term="python"></category><category term="blog"></category><category term="portfolio"></category><category term="website"></category></entry><entry><title>Starting the Fight – Launching Optimal Kombat</title><link href="https://optimal-kombat.github.io/starting-the-fight.html" rel="alternate"></link><published>2025-06-12T00:00:00+01:00</published><updated>2025-06-12T00:00:00+01:00</updated><author><name>Oscar Kelly</name></author><id>tag:optimal-kombat.github.io,2025-06-12:/starting-the-fight.html</id><summary type="html">&lt;p&gt;Intro to Optimal Kombat.&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;p&gt;Welcome to Optimal Kombat – where we use data to decode the fight game.&lt;/p&gt;
+&lt;p&gt;This first post is a quick overview of why I started this project, what kind of analysis I'm building, and how you can help shape it.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Who am I?&lt;/h3&gt;
+&lt;p&gt;My name is Oscar, a trading analyst who uses Python in my job and has a passion for sports. I played as a prop in rugby throughout school and uni, but decided that I was done standing around in the rain on a pitch in the middle of winter and wanted to move to a different sport. One I could do year-round and inside, with a lower incidence of injury perhaps... Which is why I picked Brazilian Jiu Jitsu (BJJ)!&lt;/p&gt;
+&lt;p&gt;While there is still the small but non-zero chance of some pretty devastating injuries, I was immediately hooked onto BJJ after being tapped 8 times in a single 5-minute round by someone half my size - I love learning new things, and there are plenty of techniques and facets to the sport, both in the gi and in no gi.&lt;/p&gt;
+&lt;p&gt;It also opened me up to the world of martial arts, and exposed me to MMA. Whilst I had heard of and seen MMA before, I had rather naively seen it as, "boxing but more violent and with grappling" up to this point - now, I had a new appreciation for the grappling aspect of the sport: the contrast between the overt violent melee, and the subtle techniques, tactics and strategy creates a fantastic spectator sport.&lt;/p&gt;
+&lt;h3&gt;What This Blog Is About&lt;/h3&gt;
+&lt;p&gt;I remember watching baseball with my brother one holiday when we were kids, and seeing all of these acronyms: we had no idea what OBP or RBI meant, or why they were worth showing on screen as batters stepped up to the plate. To me, American sports have always had more of a focus on the statistical side of sports, both at a team and a player level, than other sports.&lt;/p&gt;
+&lt;p&gt;This made me wonder: why &lt;em&gt;aren't&lt;/em&gt; there stats in other sports?&lt;/p&gt;
+&lt;p&gt;MMA seems like a good candidate for investigating this: the UFC is a huge promotion, and dominates the MMA sport (some people use the terms "UFC" and "MMA" interchangably when talking about watching the sport!). They collect a vast array of different data during the course of a fight: number of strikes landed vs thrown, takedown attempts, significant strikes landed to the opponent's body, significant strikes landed from the clinch position,... Not to mention, this data is collected at the fight level and at the round level: so, a 5-round fight generates a huge amount of data, and with several fights every event, there are thousands of data points generated every month!&lt;/p&gt;
+&lt;p&gt;Maybe it's just my ignorance, but I think that this data gets generated, collected,... and largely ignored. What are the implications of this data? Could we look at an incoming fighter and judge how they will perform against a particular opponent? Can we use some of this data to predict if a fight will go the distance or finish early, and how might it finish? Is there a way to evaluate fighters before a fight, to see if one is severely over- or undervalued in terms of betting odds?&lt;/p&gt;
+&lt;h3&gt;The Purpose of This Blog&lt;/h3&gt;
+&lt;p&gt;Miyamoto Musashi, a Japanese swordsman, strategist and writer, wrote: "When you know the way broadly, you see it in all things". Starting BJJ has made me look at other aspects of my life differently, particularly when looking at learning new things.&lt;/p&gt;
+&lt;p&gt;I have learned how to code only in the last few years, and already I feel comfortable using it to automate a lot of my work on a day-to-day basis. However, I feel like I have rushed past some things, and neglected to practice other things that I learned, didn't require at the time, and so have forgotten about.&lt;/p&gt;
+&lt;p&gt;One of the aims of this blog is to help give me a reason to practice these skills, and learn new ones along the way, as well as to put myself out there and try to do something new, no matter how I feel about my chances of succeeding. I'm sure there will be flaws in the analysis I do to begin with, and as time goes on, I may revisit previous articles with better methods and a greater understanding. But this is all part of an effort to improve what I can do, expand my skillset, and apply myself to an area I find exciting.&lt;/p&gt;
+&lt;p&gt;My overall goal is to use Python to break down fight data, uncover trends, and model fight outcomes and aspects of a fight. This blog will track my journey as I build analytics tools, test predictive models, and explore fighter performance from a data-driven lens.&lt;/p&gt;
+&lt;h3&gt;What’s Coming&lt;/h3&gt;
+&lt;p&gt;This project is exploratory in nature, so currently there is no defined direction, but here are a few ideas I'm excited to dive into:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Time series evolution of fighters’ stats - who learns from their mistakes, and who gets left behind&lt;/li&gt;
+&lt;li&gt;Fighter style clustering - how does Bruce Buffer know how to describe fighters in his intros before a fight starts?&lt;/li&gt;
+&lt;li&gt;Pace &amp;amp; fatigue analysis - do the young bucks have a significant advantage over the veterans?&lt;/li&gt;
+&lt;li&gt;Pre-fight modeling &amp;amp; betting implications - can this data be used to shape how fans talk about this sport, shifting away from intangible qualities and towards data-driven insights?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Give Me Feedback&lt;/h3&gt;
+&lt;p&gt;This is probably premature and a little bit self-indulgent, but in case you do read this and comes back for the articles later on, I’d love to hear your thoughts! What kind of insights are you curious about? Do you want visual breakdowns of matchups? Deeper dives into performance analytics? Tutorials or code walkthroughs? Any ideas, thoughts, comments or feedback (however brutal) would be greatly appreciated!&lt;/p&gt;
+&lt;p&gt;Comment (coming soon), DM me, or message me &lt;a href="https://github.com/optimal-kombat"&gt;on GitHub&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Let’s find patterns in the chaos — together.&lt;/p&gt;</content><category term="MMA Analytics"></category><category term="scraping"></category><category term="UFC"></category><category term="MMA"></category></entry></feed>
