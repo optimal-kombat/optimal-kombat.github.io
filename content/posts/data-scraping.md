@@ -1,5 +1,5 @@
 Title: Scraps and Scrapes - Web Scraping UFC Fight Data
-Date: 2025-06-18
+Date: 2025-06-19
 Tags: scraping, python, UFC, data, BeautifulSoup
 Category: MMA Analytics
 Slug: data-scraping
