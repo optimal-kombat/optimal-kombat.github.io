@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <title>Optimal Kombat</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./theme/css/custom.css">
+    <link rel="stylesheet" href="https://optimal-kombat.github.io/theme/css/custom.css">
 </head>
 <body>
     <header>
         <h1>
-          <a href="./">
+          <a href="https://optimal-kombat.github.io/">
             <img src="images/optimal-kombat-logo.png" alt="Optimal Kombat" style="height: 150px; vertical-align: middle;">
           </a>
         </h1>
@@ -19,20 +19,96 @@
     <main>
 <article class="post">
   <header>
-    <h1>Learning from Losses: Tracking UFC Fighters' Improvements</h1>
-    <p><time datetime="2025-06-23T00:00:00+01:00">2025-06-23</time></p>
+    <h1>Strikes, Slumps, and Comebacks: How UFC Fighters Evolve</h1>
+    <p><time datetime="2025-08-08T00:00:00+01:00">2025-08-08</time></p>
   </header>
 
-  <h3>Introduction</h3>
+  <h2>Introduction</h2>
 <blockquote>
 <p><em>"I never lose. I either win or learn."</em></p>
 <p>— <strong>Khabib Nurmagomedov</strong></p>
 </blockquote>
-<p>Yeah, he was a great fighter, but what the hell does that guy know about losing, considering he was undefeated in the UFC and retired with a 29-0-0 record?</p>
-<p>The saying, <em>"What goes around, comes around"</em>, seems very poignant in sports: at some point, you're going to lose (unless you're Khabib). And while a loss in most sports isn't too devastating, in combat sports, a loss or two can be the inflection point of your career. Without a good win rate, fickle fans can turn on a fighter, and they can find themselves getting dropped from the UFC roster after only a few loses.</p>
-<p>But truly great fighters don't just win: they lose, and come back better.</p>
-<p>People love an underdog: we see ourselves in those who fail, and find it cathartic watching them come back to eventually succeed. </p>
-<p>By turning fight history into time series, we’ll attempt to answer a deceptively simple question: <strong>Do UFC fighters get better after they lose?</strong></p>
+<p>What does that guy know about losing? It's a bold quote from an undefeated UFC fighter with a 29-0 record - he didn't have many chances to "learn".</p>
+<p>In sports, at some point, you're going to lose (unless you're Khabib). And while a loss in most sports isn't too devastating, in combat sports, one or two losses can be the inflection point of your career. Without a good win rate, fickle fans can turn on a fighter, who suddenly find themselves dropped from the UFC roster after just a few losses.</p>
+<p>On the other hand, people love an underdog: we see ourselves in flawed individuals who fail, and find it cathartic watching them fight their way back to eventually succeed. It gives us hope that one day, we too might overcome a failure to come back better and succeed in our own lives. To me, it seems that the issue people have is not with losing, but with not improving and working on your weaknesses.</p>
+<p>Good fighters win, but truly great fighters don't just win: they lose — and come back better. Or, do they?</p>
+<p>Dustin Poirier said, <em>"It's not about how you start. It's about how you bounce back."</em> But is that really true? Do fighters come back stronger — or just come back? In this article, I’ll attempt to answer a deceptively simple question: <strong>Do UFC fighters get better after they lose?</strong></p>
+<h2>Throwing Combinations</h2>
+<p>In <em><a href="{filename}/data-scraping.md">Scraps and Scrapes</a></em>, we pulled raw fight stats from UFCStats — numbers like strikes landed, takedowns attempts, and control time. A good starting point, but raw data on its own feels like single strikes thrown without set up: one-dimensional, uncontextualised, and ineffectual.</p>
+<p>Take striking, for example: landing 20 strikes in a round might seem unremarkable... until you learn the fighter only attempted 21 strikes, and their opponent only landed 3 out of their 30. Now that same fighter looks ruthlessly surgical in their attack, and acutely aware of incoming threats.</p>
+<p>Fighters throw striking combinations, and we should follow suit: to establish a more nuanced picture of <em>how</em> a fight might have played out, we need to combine raw stats in meaningful ways. This process is known as <strong>feature engineering</strong>, and allows us to dig deeper into a fighter's style — and how it evolves over time.</p>
+<p>I've described some of these derived stats below:</p>
+<ul>
+<li>
+<p><strong>Striking margin per minute</strong> – Average difference between strikes landed and absorbed per minute. Positive means outstriking the opponent.</p>
+</li>
+<li>
+<p><strong>Striking accuracy differential</strong> – Difference between a fighter’s and their opponent’s significant strike accuracy. Positive means more accurate.</p>
+</li>
+<li>
+<p><strong>Striking efficiency differential</strong> – Difference in efficiency (significant strikes ÷ total strikes thrown). Positive means landing more high-impact strikes per overall output.</p>
+</li>
+<li>
+<p><strong>Net significant strikes landed</strong> – Significant strikes landed minus those absorbed. Positive means outlanding the opponent in significant strikes.</p>
+</li>
+<li>
+<p><strong>Control proportion differential</strong> – Difference in control time share during grounded grappling exchanges. Positive means more control than the opponent.</p>
+</li>
+</ul>
+<h2>Reigniting the Fire, or Burning Out</h2>
+<p>I have tracked career stats for a handful of famous UFC fighters, to see if their numbers tell a story of growth and adaptation, or decline. Note that this is not a statistically rigourous analysis of post-loss improvement: these are case studies to show how we can leverage data to make inferences about a fighter's performance throughout their careers.</p>
+<h3>Rose Namajunas</h3>
+<p>"Thug Rose" didn't start her UFC career the way any fighters would want: she lost the TUF season 20 finale against Carla Esparza, leaving her with a 0-1 record. But, being the explosive and fast-paced striker that she is, she quickly moved past that first defeat, returning sharper and more determined. This became a defining pattern in her UFC career: in the stacked strawweight division, long win streaks are rare, but each time Namajunas suffered a defeat, she came back to beat elite opponents such as Jessica Andrade, Joanna Jedrzejczyk, and Zhang Weili. Her stats show a repeating cycle: periods where she's outperformed in striking outpur or accuracy, followed by time off, tactical and technical adjustments, and a run of successful bouts with marked improvements. Four key metrics that suggest improvements to her striking game are:</p>
+<ul>
+<li>Striking margin per minute: after most of her losses, Namajunas showed improvement in her striking margin per minute, suggesting an improvement to her defensive capabilities between the loss and the next fight. This is a big strength in a successful UFC fighter: being able to take a loss on the chin, learn from it, and come to your next fight better than before.</li>
+</ul>
+<p><img alt="Namajunas Striking Margin per minute" src="https://optimal-kombat.github.io/images/strikes-slumps-and-comebacks/namajunas_strike_margin_per_min.png"></p>
+<ul>
+<li>Striking accuracy differential: early in her career, her striking accuracy was choppy when compared to that of her opponents, but in her last 5 fights, she has been more accurate than her opponents in all but her most recent one against Erin Blanchfield. This shows a </li>
+</ul>
+<p><img alt="Namajunas Striking Accuracy Differential" src="https://optimal-kombat.github.io/images/strikes-slumps-and-comebacks/namajunas_strike_accuracy_diff.png"></p>
+<ul>
+<li>Striking efficiency: Namajunas' striking efficiency early on showed an inability to land significant strikes without high overall striking volume. As she progressed in the UFC, she became better at identifying when to throw strikes, landing more significant strikes while throwing a lower volume.</li>
+</ul>
+<p><img alt="Namajunas Striking Efficiency Differential" src="https://optimal-kombat.github.io/images/strikes-slumps-and-comebacks/namajunas_strike_efficiency_diff.png"></p>
+<ul>
+<li>Net significant strikes landed: again, "Thug Rose" posted inconsistent net significant strikes landed stats in her early fights, but this has improved over time to be positive on a more consistent basis. This trend suggests that she is outlanding her opponents as she has gotten more experience in the Octagon.</li>
+</ul>
+<p><img alt="Namajunas Net Significant Strikes Landed" src="https://optimal-kombat.github.io/images/strikes-slumps-and-comebacks/namajunas_net_sig_strikes_landed.png"></p>
+<p>It's worth noting that her aggressiveness and pace stats have not shown an obvious improvement over time: however, what's interesting is that when these stats have been negative, Namajunas has been beaten by her opponents. This could suggest that her success in the Octagon relies on being able to control the tempo of the fight, rather than letting her opponents dictate this.</p>
+<h3>Charles Oliveira</h3>
+<p>Charles Oliveira burst onto the UFC scene with some explosive wins against some of the lower ranked fighters within his division, winning the majority of his fights by submission (which is one of the rarer ways to win a UFC fight!). However, he struggled against some of the bigger names: he lost to Donald Cerrone, Cub Swanson and Max Holloway all by KO/TKO, and lost some of his fights via submission too. Pre-2018, he had recorded 8 losses out of 19 fights - a respectable record, but a 58% win rate does not a champion make!</p>
+<p>However, there is a noticeable turning point in his career: in 2018, Oliveira starts fighting more often, going on an 11-fight win streak, and becoming the lightweight champion. He still won by submission against the likes of Dustin Poirier and Justin Gaethje, but also by KO/TKO against Michael Chandler and Beneil Dariush.</p>
+<p>There are three interesting metrics we can look at that shed some light onto his career trajectory:
+- Efficiency differential - Pre-2018, Oliveira's striking efficiency was often similar to or less than his opponents', and his efficiency was lower in 7 out of his 8 pre-2018 losses. After the start of 2018, his striking efficiency stat improved relative to his opponents, suggesting an improvement in picking when to throw his strikes and thus landing more at a given volume of strikes thrown. From this, it can be inferred that he matured and became a more competent striker.</p>
+<p><img alt="Oliveira Strike Efficiency Differential" src="https://optimal-kombat.github.io/images/strikes-slumps-and-comebacks/oliveira_strike_efficiency_diff.png"></p>
+<ul>
+<li>Strike margin per minute - Charles Oliveira's strike margin was very choppy during his early career pre-2018, often dropping below 0, meaning he often took as much damage or more than he caused (in 6 of his 8 pre-2018 losses, his opponents outstruck him). After 2018, his strike margin per minute stats improved, and he often recorded positive strike margins during his 11-fight win strike, implying better striking defence and improved striking offense.</li>
+</ul>
+<p><img alt="Oliveira Striking Margin per minute" src="https://optimal-kombat.github.io/images/strikes-slumps-and-comebacks/oliveira_strike_margin_per_min.png"></p>
+<ul>
+<li>Control proportion differential - similar to the other stats mentioned, Oliveira's control proportion differential was regularly negative during his early career, though interestingly not always when he lost. This could suggest weaknesses in his grappling ability to defend against sweeps, or an inability to finish a fight before the round ended and his opponent got another chance to finish the fight while standing. Despite this stat's implications, Oliveira still managed to record submission wins in his early career. From 2018 onwards, his control proportion differential was about as likely to be positive as negative (i.e. not great, but better than before!), implying a stronger wrestling and positional grappling game.</li>
+</ul>
+<p><img alt="Oliveira Control Proportion Differential" src="https://optimal-kombat.github.io/images/strikes-slumps-and-comebacks/oliveira_control_pct_diff.png"></p>
+<p>Looking at Oliveira's control proportion differential, he has won several fights where he has not had a higher share of the control time than his opponent - think of his fights against Hatsu Hioki, Myles Jury, and Kevin Lee. This is actually one of the reasons why he is considered a great UFC fighter: he is a submission hunter, and doesn't need an advantageous grappling position for long to secure a submission.</p>
+<h3>Darren Till</h3>
+<p>Darren Till was another exciting fighter when he started his UFC journey. A southpaw Muay Thai-style striker on paper sounds like a fan's dream: think huge, violent, sudden knockouts that could turn a fight on its head in an instant. He started decently, scoring knockdowns in fights that went the distance, and winning by KO/TKO against Wendell Marques and Donald Cerrone. However, he had a horrific performance against Tyron Woodley, hardly recording any strikes (1 landed out of a total of 7 attempted) and losing in the second round to a D'Arce choke. Including this loss, Till recorded only one other win from then on out of 6 fights, leading to the UFC cutting him from their Welterweight roster in 2023. We can look at some of his stats to get an idea of what kind of fighter he was, and what might have led to the UFC deciding to let him go.</p>
+<ul>
+<li>Strike margin per minute - Till starts his career winning a good portion of his fights via decision, and as such, takes a reasonable amount of damage from his opponents - having said that, he also dishes it out too, often outstriking his opponents. From the Woodley fight onwards however, he is regularly beaten on the feet, with his opponents landing considerably more punches than Till lands. Some of his worst recorded strike margins have interestingly come from fights where he was beaten by submission too, possibly highlighting that he struggled to defend himself from strikes or submissions when the fight was taken to the ground. The more negative values may also show that he struggled to turn the tables when his opponents were outstriking him, meaning that once the fight started to run away from him, it was basically over for Till.</li>
+</ul>
+<p><img alt="Till Strike Margin per minute" src="https://optimal-kombat.github.io/images/strikes-slumps-and-comebacks/till_strike_margin_per_min.png"></p>
+<ul>
+<li>Efficiency differential - Darren Till's efficiency metric tells a similar story: at the start of his career, he picked his strikes well and landed a good portion of them. But then, he started to fight higher quality opponents: from the Cerrone fight, this metric dropped and hovered around 0, indicating he wasn't landing any more strikes in a given volume thrown than his opponent. This could indicate that maybe he had reached his highest level, which unfortunately did not allow him to compete with the bigger names in his division.</li>
+</ul>
+<p><img alt="Till Strike Efficiency Differential" src="https://optimal-kombat.github.io/images/strikes-slumps-and-comebacks/till_strike_efficiency_diff.png"></p>
+<ul>
+<li>Control proportion differential - Till didn't often dominate grappling exchanges, shown by negative control proportion differentials - this aligns with his preferred fighting method of striking. Being a specialist has hardly ever worked in the sport of MMA (in fact, it was a key lesson in the early days of the sport: fighters realised you can't do one martial art and expect to beat everyone!), and Till's lack of grappling prowess led to his defeats later in his career.</li>
+</ul>
+<p><img alt="Till Control Proportion Differential" src="https://optimal-kombat.github.io/images/strikes-slumps-and-comebacks/till_control_pct_diff.png"></p>
+<h2>Conclusion</h2>
+<p>I should remind you: these stats aren't a crystal ball into predicting the next UFC champion. I don't pretend to draw any causal relationships between these stats (or any others for that matter) and the outcome of fights in the Octagon. But they do offer another lens through which to analyse the chaotic nature of mixed martial arts, and another perspective on fighters' performances. Rose Namajunas reflected, adapted, and succeeded after big losses. Charles Oliveira turned his career from a potentially mediocre one to one involving a huge win streak, a championship belt, and a reputation as being one of the most dangerous grapplers in the UFC. And Darren Till swung for the fences, but eventually was forced to bow out.</p>
+<p>This article is just an illustration of why this data is useful, justifying further research into this space. What if we can leverage these numbers to predict who will win in the next UFC event? What if we can use this data to predict how long a match is likely to go on for, or how it will end? And if we can do all of those things, could we walk the walk and put our money where our mouths are, and place smarter wagers on these events with the edge that these metrics give us?</p>
+<p>We'll find out in later articles.</p>
 
   <section id="comments">
     <script src="https://utteranc.es/client.js"

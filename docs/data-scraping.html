@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <title>Optimal Kombat</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./theme/css/custom.css">
+    <link rel="stylesheet" href="https://optimal-kombat.github.io/theme/css/custom.css">
 </head>
 <body>
     <header>
         <h1>
-          <a href="./">
+          <a href="https://optimal-kombat.github.io/">
             <img src="images/optimal-kombat-logo.png" alt="Optimal Kombat" style="height: 150px; vertical-align: middle;">
           </a>
         </h1>
@@ -19,7 +19,7 @@
     <main>
 <article class="post">
   <header>
-    <h1>Scraps and Scrapes - Web Scraping UFC Fight Data</h1>
+    <h1>Scraps and Scrapes: Web Scraping UFC Fight Data</h1>
     <p><time datetime="2025-06-19T00:00:00+01:00">2025-06-19</time></p>
   </header>
 
@@ -43,18 +43,18 @@
 <p>For the unacquainted, <code>BeautifulSoup</code> is a <em>web scraping</em> python package, letting you pull data from websites, provided they have a consistent HTML structure.</p>
 <p>Let's go through the steps I used to create my starting dataset.</p>
 <h3>Step 1: Scrape All Event URLs</h3>
-<p>We have already identified the data source, but now we need to access each of the events in turn, so we can scrape the data from their respective fights. I used a simple function that scraped the <a href="http://ufcstats.com/statistics/events/completed?page=all">events page</a>, searched the HTML code for each event's URL, and pulled it into a list. This can now be iterated through to access each event in turn.</p>
+<p>We’ve already identified the data source, but now we need to access each of the events in turn, so we can gather the data from their respective fights. I began by extracting event-level data using the structure of the UFCStats events page, which lists every completed UFC event. From there, I generated a list of events that could be processed one by one.</p>
 <h3>Step 2: Extract All Fights From Each Event</h3>
-<p>I iterated through our event URL list, pulling all of the fight URLs from the HTML code of each event webpage. These fight URLs were then stored in a new list, creating a list of all UFC fights that have taken place since around 2009 (I didn't want to collect data that was too old, but decided that UFC100 was a good starting point, since it would include active UFC veterans and had the same HTML structure as more recent events).</p>
+<p>From there, I identified the individual fights within each event to build a complete timeline of UFC bouts. These fights were then used to create a list of all UFC fights that have taken place since around 2009 (I didn't want to collect data that was too old, but decided that UFC100 was a good starting point, since it would include active UFC veterans and had the same HTML structure as more recent events).</p>
 <h3>Step 3: Scrape Fight-Level Stats</h3>
-<p>Using another function, I iterated through the fight URLs to access the data associated with each fight. I pulled as much as I could from the page, starting with the fight-level data, then moving onto each of the individual rounds. The scraper had to be dynamic, as some fights ended early in round 1, while some went the full distance (either 3 rounds for normal fights, or 5 rounds for fights with a belt on the line/headline fights). So, I assumed I was collecting 5 rounds of data, and if the fight ended in round 1, the data in rounds 2-5 are filled with <code>NaN</code> values, to simplify things.</p>
+<p>Using another function, I iterated through the fight URLs to access the data associated with each fight. I pulled as much as I could from the page, starting with the fight-level data, then moving onto each of the individual rounds. The scraper had to be dynamic, as some fights ended early in round 1, while some went the full distance (either 3 rounds for normal fights, or 5 rounds for fights with a belt on the line/headline fights). So, I structured the scraper to handle up to five rounds per fight, using a consistent format that accounts for fights ending early.</p>
 <p>In addition to fight statistics, I collected data related to the fight itself: who the referee was, the fight length in seconds, the judges' names and scorecards if the fight ended in a decision, and the method of victory, amongst others. These statistics will allow me to add extra information to my models, and look into predicting things like how fights might end, rather than just if they will finish inside the distance.</p>
 <p>I now faced a problem: how should I be storing this data? I couldn't set up a dictionary with all of the UFC fighters names - ~~that would take too long and I'm too lazy~~ it would be inefficient. If a new fighter came along, I would have to add their name to the dictionary before I could pull data for them.</p>
 <p>Thankfully, Python already had a solution: the <code>defaultdict</code> in the <code>collections</code> module won't throw a KeyError if you pass a new key into it like a normal dictionary would. Instead, it seamlessly creates a new key for you!</p>
 <h3>Step 4: Time Crisis</h3>
-<p>I pulled all of the fight data I could from every fight since UFC100 - thousands of fights, with hundreds of data points in each. My script ran for over an hour (if anyone has any tips to make this process more efficient, feel free to let me know in the comments!), and I immediately saved the JSON output locally to ensure I wouldn't lose it. I then tried to plot some data for a fighter over a period of time, to see how their stats had changed over time.</p>
+<p>I pulled all of the fight data I could from every fight since UFC100 - thousands of fights, with hundreds of data points in each. After a full run across historical events, I saved the resulting dataset locally — a rich record of thousands of fights. I then tried to plot some data for a fighter over a period of time, to see how their stats had changed over time.</p>
 <p>One rather crucial piece of data was missing from the fight pages... The date the fight took place.</p>
-<p>So, back at the drawing board, I created a mapping dictionary - this mapped the fight URLs to the event date contained in the event page. Armed with this, I could modify the data scraping function to add this date in as metadata alongside the fight data, ensuring that I could create time series from the <code>defaultdict</code> at the end.</p>
+<p>So, back at the drawing board, I developed a way to link each fight to its corresponding event date using metadata from the event pages. Armed with this, I could modify the data scraping function to add this date in as metadata alongside the fight data, ensuring that I could create time series from the <code>defaultdict</code> at the end.</p>
 <p>The final data object looked something like this:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
     <span class="o">...</span><span class="p">,</span>
@@ -67,7 +67,7 @@
        <span class="s1">&#39;stats&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;FIGHT_KD_1&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
         <span class="s1">&#39;FIGHT_KD_2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="o">...</span><span class="p">,</span>
-        <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;http://ufcstats.com/fight-details/ebf7cea27b83c432&#39;</span><span class="p">}],</span>
+        <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;http://ufcstats.com/fight-details/xxxxxxxxxxxxxxxx&#39;</span><span class="p">}],</span>
         <span class="s1">&#39;Justin Gaethje&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">],</span>
         <span class="o">...</span><span class="p">,</span>
         <span class="p">},</span>
